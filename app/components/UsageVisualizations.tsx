@@ -6,6 +6,7 @@ import { DailySum } from '../types';
 import NotesModal from './NotesModal';
 import data from '../energy-carbon-data';
 import getEnergyCarbonData from '../energy-carbon-data';
+import { getNotesAction } from '../api/_actions';
 
 
 const UsageVisualizations = () => {
@@ -21,11 +22,18 @@ const UsageVisualizations = () => {
         setIsModalOpen(true);
     };
 
-    const handleShowNotes = (...props: any[]) => {
-        const date = props[0].value as string; // i.e. "2023-12-11"
+    const handleShowNotes = async (...props: any[]) => {
+        const date = props[0].value as string; // i.e. "Jan 9, 2024"
         console.log('__notes date pre formatting', date);
+        const getNotesForDay = await getNotesAction(date);
+        const { notes } = getNotesForDay[getNotesForDay.length - 1];
         setNotesDate(date);
+        setNotes(notes);
     }
+
+    useEffect(() => {
+        console.log('notes date', notesDate);
+    }, [notesDate]);
 
     return (
         <div className={`${styles.container} mt-3`}>
@@ -75,7 +83,7 @@ const UsageVisualizations = () => {
                         <Bar dataKey="carbon_co2_lbs" fill="#0369a1" activeBar={<Rectangle fill="#0373b1" stroke="#025e90" />} onClick={handleBarClick} />
                     </BarChart>
                     {notesDate && (<div className="bg-gray-200 p-8 rounded-lg w-1/3">
-                        <p><b>Notes for {reformatDate(notesDate)}</b></p>
+                        <p><b>Notes for {notesDate}</b></p>
                         <p className="mt-2">{notes ? notes : <i>No notes saved for this date</i>}</p>
                     </div>)}
                 </div>

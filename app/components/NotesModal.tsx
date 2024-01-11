@@ -1,6 +1,7 @@
 import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { addNoteAction } from '../api/_actions';
+import toast from 'react-hot-toast';
 
 
 interface Props {
@@ -25,7 +26,6 @@ export default function NotesModal({ isOpen, setOpen, date }: Props) {
         { name: "Poor Insulation", selected: false },
         { name: "Fridge Openings", selected: false }
     ])
-    console.log('date in modal', date)
     const cancelButtonRef = useRef(null)
 
     const resetSelected = () => {
@@ -41,24 +41,16 @@ export default function NotesModal({ isOpen, setOpen, date }: Props) {
 
         try {
             const response = await addNoteAction({date, notes: str })
-            
-            console.log({ response })
-            // if (!response.ok) {
-            //     throw new Error(`HTTP error! status: ${response.status}`);
-            // }
-            
-            // const result = await response.json();
-            resetSelected();
 
-            // if (result) {
-            //     toast.success('Notes saved!');
-            // } else {
-            //     toast.error('Bummer, there was an error saving notes');
-            // }
+            if (response?.success) {
+                resetSelected();
+                toast.success('Notes saved!');
+            } else {
+                toast.error('Bummer, there was an error saving notes');
+            }
         } catch (error) {
             console.error('Error posting note:', error);
         }
-     
         
         setOpen(false)
     }
