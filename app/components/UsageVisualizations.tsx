@@ -7,45 +7,16 @@ import NotesModal from './NotesModal';
 import data from '../energy-carbon-data';
 import getEnergyCarbonData from '../energy-carbon-data';
 
-interface UsageGraphProps {
-    customerId: number;
-}
 
-const UsageVisualizations = ({ customerId }: UsageGraphProps) => {
+const UsageVisualizations = () => {
     const [notesModalDate, setNotesModalDate] = useState('');
     const [notesDate, setNotesDate] = useState('');
     const [notes, setNotes] = useState(''); // TODO: Get notes from DB for date [notesDate
     const [isModalOpen, setIsModalOpen] = useState(false);
     
     const lastWeekEnergyData = getEnergyCarbonData();
-    console.log({ lastWeekEnergyData })
-    useEffect(() => {
-        const getNotesData = async () => {
-            setNotes('');
-            if (!notesDate) return;
-            console.log('Fetching notes for date:', notesDate);
-            try {
-                const url = `/api/notes?customer_id=${customerId}&note_date=${notesDate}`;
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                const result = await response.json();
-                setNotes(result.note)
-                console.log('___GetNotesData result', result.note);
-            } catch (err) {
-                console.error('Error fetching note:', err);
-            }
-
-        };
-
-        getNotesData();
-    }, [notesDate]);
 
     const handleBarClick = (data: DailySum, index: number) => {
-        console.log("Bar clicked:", data, "at index", index);
         setNotesModalDate(data.date);
         setIsModalOpen(true);
     };
@@ -57,8 +28,8 @@ const UsageVisualizations = ({ customerId }: UsageGraphProps) => {
     }
 
     return (
-        <div className={`${styles.container} mt-3 w-fit`}>
-            <NotesModal isOpen={isModalOpen} setOpen={setIsModalOpen} date={notesModalDate} customerId={customerId} />
+        <div className={`${styles.container} mt-3`}>
+            <NotesModal isOpen={isModalOpen} setOpen={setIsModalOpen} date={notesModalDate} />
             <h2 className='text-xl text-green-700 mb-3 mt-3'>Energy Usage and CO2 Emissions over the last week:</h2>
 
             <div className='grid-cols-2'>

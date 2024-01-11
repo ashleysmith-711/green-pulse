@@ -1,12 +1,10 @@
 import { Fragment, useRef, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
-import toast from 'react-hot-toast';
-import { reformatDate } from '../utils';
+import { addNoteAction } from '../api/_actions';
 
 
 interface Props {
     date: string;
-    customerId: number;
     isOpen: boolean;
     setOpen: (isOpen: boolean) => void;
 }
@@ -14,7 +12,7 @@ type EnergyAction = {
     name: string;
     selected: boolean;
 }
-export default function NotesModal({ isOpen, setOpen, date, customerId }: Props) {
+export default function NotesModal({ isOpen, setOpen, date }: Props) {
     const [energyActions, setEnergyActions] = useState<EnergyAction[]>([
         { name: "Dishwasher Use", selected: false },
         { name: "Washing Machine", selected: false },
@@ -42,30 +40,21 @@ export default function NotesModal({ isOpen, setOpen, date, customerId }: Props)
         const str = energyActions.filter(action => action.selected).map(action => action.name).join(', ');
 
         try {
-            const response = await fetch('/api/notes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    note: str,
-                    customer_id: customerId,
-                    note_date: date
-                }),
-            });
-    
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            const response = await addNoteAction({date, notes: str })
             
-            const result = await response.json();
+            console.log({ response })
+            // if (!response.ok) {
+            //     throw new Error(`HTTP error! status: ${response.status}`);
+            // }
+            
+            // const result = await response.json();
             resetSelected();
 
-            if (result) {
-                toast.success('Notes saved!');
-            } else {
-                toast.error('Bummer, there was an error saving notes');
-            }
+            // if (result) {
+            //     toast.success('Notes saved!');
+            // } else {
+            //     toast.error('Bummer, there was an error saving notes');
+            // }
         } catch (error) {
             console.error('Error posting note:', error);
         }
@@ -111,7 +100,7 @@ export default function NotesModal({ isOpen, setOpen, date, customerId }: Props)
 
                                         <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                                             <Dialog.Title as="h3" className="text-base font-semibold leading-6 text-gray-900">
-                                                Add Actions for {reformatDate(date)}?
+                                                Add Notes for {date}?
                                             </Dialog.Title>
                                             <div className="mt-2">
                                                 <p className="text-sm text-gray-500 mb-2">
@@ -137,7 +126,7 @@ export default function NotesModal({ isOpen, setOpen, date, customerId }: Props)
                                         className="inline-flex w-full justify-center rounded-md bg-green-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700 sm:ml-3 sm:w-auto"
                                         onClick={handleSaveNotes}
                                     >
-                                        Save actions
+                                        Save notes
                                     </button>
                                     <button
                                         type="button"
